@@ -1,0 +1,7 @@
+reference: /path/to/database/genome.fa.gz
+
+assembly: /path/to/assembly/NA24385-denovo-H{hap}.fa
+
+truth:
+    vcf: /path/to/truth/vcf.vcf.gz
+    bed: /path/to/truth/regions.bed
