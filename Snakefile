@@ -1,7 +1,12 @@
 configfile: "config/config.yaml"
 
 wildcard_constraints:
-    chr="(\d+|genome)"
+    chr="(\d+|genome)",
+    rgt="\d+",
+    rot="\d+",
+    qgt="\d+",
+    qot="\d+",
+    med="\d+"
 
 include: "workflow/rules/align.smk"
 include: "workflow/rules/call.smk"
@@ -19,7 +24,10 @@ rule all:
         "pipeline/eval/all_results.txt",
         "pipeline/eval/svim_parameter_results.txt",
         "pipeline/eval/results.tools.png",
-        "pipeline/eval/results.svim.parameters.png"
+        "pipeline/eval/results.svim.parameters.png",
+        "pipeline/SV-plots/SV-counts.merged.png",
+        expand("pipeline/SV-plots/SV-length_SVIM_{rgt_rot_qgt_qot}_{med}.png", rgt_rot_qgt_qot=["50_50_50_50", "100_100_2000_2000", "1000_1000_2000_2000"], med=[200]),
+        "pipeline/SV-plots/SV-length_dipcall.png",
         # expand("coverage/assembly.H{hap}.cov.tsv", hap=["1.flt","1", "2.flt", "2"]),
         # "coverage/reads.cov.tsv"
 

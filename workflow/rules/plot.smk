@@ -106,12 +106,13 @@ rule plot_pr_tools:
     input:
         "pipeline/eval/all_results.txt"
     output:
-        "pipeline/eval/results.tools.png"
+        png = "pipeline/eval/results.tools.png",
+        tsv = "pipeline/eval/results.tools.tsv"
     threads: 1
     log:
         "pipeline/logs/rplot.tools.log"
     shell:
-        "Rscript --vanilla workflow/scripts/plot_tools.R {input} {output} > {log}"
+        "Rscript --vanilla workflow/scripts/plot_tools.R {input} {output.png} {output.tsv} > {log}"
 
 
 rule plot_pr_svim_parameters:
@@ -124,3 +125,66 @@ rule plot_pr_svim_parameters:
         "pipeline/logs/rplot.svim.log"
     shell:
         "Rscript --vanilla workflow/scripts/plot_svim_parameters.R {input} {output} > {log}"
+
+
+rule call_svim_diploid_all_types:
+    input:
+        reference = config["reference"],
+        bam1 = "pipeline/alignments/H1.sort.bam",
+        index1 = "pipeline/alignments/H1.sort.bam.bai",
+        bam2 = "pipeline/alignments/H2.sort.bam",
+        index2 = "pipeline/alignments/H2.sort.bam.bai"
+    output:
+        "pipeline/calls/svim/{rgt}_{rot}_{qgt}_{qot}_{med}_all_types/variants.vcf"
+    params:
+        working_dir = "pipeline/calls/svim/{rgt}_{rot}_{qgt}_{qot}_{med}_all_types"
+    #conda:
+    #    "../envs/svimasm.yaml"
+    shell:
+        "/home/heller_d/bin/anaconda3/bin/svim-asm diploid {params.working_dir} {input.bam1} {input.bam2} {input.reference} --min_sv_size 20 \
+        --reference_gap_tolerance {wildcards.rgt} --reference_overlap_tolerance {wildcards.rot} \
+        --query_gap_tolerance {wildcards.qgt} --query_overlap_tolerance {wildcards.qot} --max_edit_distance {wildcards.med} --sample HG002 --query_names"
+
+rule SV_length_plot_svim:
+    input:
+        "pipeline/calls/svim/{parameters}_all_types/variants.vcf"
+    output:
+        plot = "pipeline/SV-plots/SV-length_SVIM_{parameters}.png",
+        counts = "pipeline/SV-plots/SV-counts_SVIM_{parameters}.txt",
+    log:
+        "logs/svplot/svlength_SVIM_{parameters}.log"
+    conda:
+        "../envs/cyvcf2.yaml"
+    shell:
+        "python workflow/scripts/SV-length-plot.py {input} --output {output.plot} --counts {output.counts} --filter 'hs37d5'  --tool SVIM 2> {log}"
+
+rule SV_length_plot_dipcall:
+    input:
+        "pipeline/calls/dipcall/HG002.dip.vcf.gz"
+    output:
+        plot = "pipeline/SV-plots/SV-length_dipcall.png",
+        counts = "pipeline/SV-plots/SV-counts_dipcall.txt",
+    log:
+        "logs/svplot/svlength_dipcall.log"
+    conda:
+        "../envs/cyvcf2.yaml"
+    shell:
+        "python workflow/scripts/SV-length-plot.py {input} --output {output.plot} --counts {output.counts} --filter 'hs37d5'  --tool DipCall 2> {log}"
+
+rule merge_counts:
+    input:
+        svim = "pipeline/SV-plots/SV-counts_SVIM_1000_1000_2000_2000_200.txt",
+        sniffles = "pipeline/SV-plots/SV-counts_dipcall.txt",
+    output:
+        "pipeline/SV-plots/SV-counts.merged.txt"
+    shell:
+        "cat {input} | grep -v '#' > {output}"
+
+rule plot_counts:
+    input:
+        "pipeline/SV-plots/SV-counts.merged.txt"
+    output:
+        png = "pipeline/SV-plots/SV-counts.merged.png",
+        tsv = "pipeline/SV-plots/SV-counts.merged.tsv"
+    shell:
+        "Rscript --vanilla workflow/scripts/plot_counts.R {input} {output.png} {output.tsv}"
