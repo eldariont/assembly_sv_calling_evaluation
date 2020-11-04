@@ -16,6 +16,7 @@ def main():
     for v in VCF(args.vcf):
         #ignore TRAs and BNDs
         if v.INFO.get('SVTYPE') in ['TRA', 'BND']:
+            len_dict[v.INFO.get('SVTYPE')].append(0)
             continue
         #filter by score
         if args.min_score != 0 and v.QUAL < args.min_score:
@@ -50,17 +51,20 @@ def main():
     with open(args.counts, 'w') as counts:
         counts.write("#Size class\tType\tCount\tCumulative length\tTool\n")
         for svtype, lengths in len_dict.items():
-            tiny = [l for l in lengths if l < 200]
-            small = [l for l in lengths if l >= 200 and l < 1000]
-            medium = [l for l in lengths if l >= 1000 and l < 10000]
-            large = [l for l in lengths if l >= 10000 and l < 100000]
-            huge = [l for l in lengths if l >= 100000]
-            counts.write("{}\t{}\t{}\t{}\t{}\n".format("all", svtype, len(lengths), sum(lengths), args.tool))
-            counts.write("{}\t{}\t{}\t{}\t{}\n".format("tiny", svtype, len(tiny), sum(tiny), args.tool))
-            counts.write("{}\t{}\t{}\t{}\t{}\n".format("small", svtype, len(small), sum(small), args.tool))
-            counts.write("{}\t{}\t{}\t{}\t{}\n".format("medium", svtype, len(medium), sum(medium), args.tool))
-            counts.write("{}\t{}\t{}\t{}\t{}\n".format("large", svtype, len(large), sum(large), args.tool))
-            counts.write("{}\t{}\t{}\t{}\t{}\n".format("huge", svtype, len(huge), sum(huge), args.tool))
+            if svtype in ['TRA', 'BND']:
+                counts.write("{}\t{}\t{}\t{}\t{}\n".format("all", svtype, len(lengths), 0, args.tool))
+            else:
+                tiny = [l for l in lengths if l < 200]
+                small = [l for l in lengths if l >= 200 and l < 1000]
+                medium = [l for l in lengths if l >= 1000 and l < 10000]
+                large = [l for l in lengths if l >= 10000 and l < 100000]
+                huge = [l for l in lengths if l >= 100000]
+                counts.write("{}\t{}\t{}\t{}\t{}\n".format("all", svtype, len(lengths), sum(lengths), args.tool))
+                counts.write("{}\t{}\t{}\t{}\t{}\n".format("tiny", svtype, len(tiny), sum(tiny), args.tool))
+                counts.write("{}\t{}\t{}\t{}\t{}\n".format("small", svtype, len(small), sum(small), args.tool))
+                counts.write("{}\t{}\t{}\t{}\t{}\n".format("medium", svtype, len(medium), sum(medium), args.tool))
+                counts.write("{}\t{}\t{}\t{}\t{}\n".format("large", svtype, len(large), sum(large), args.tool))
+                counts.write("{}\t{}\t{}\t{}\t{}\n".format("huge", svtype, len(huge), sum(huge), args.tool))
     make_plot(dict_of_lengths=len_dict,
               output=args.output)
 
@@ -75,6 +79,14 @@ def make_plot(dict_of_lengths, output):
     Second bar chart is up to 20kb, with bins of 100bp
      and uses log scaling on the y-axis
     """
+    try:
+        del dict_of_lengths["TRA"]
+    except KeyError:
+        pass
+    try:
+        del dict_of_lengths["BND"]
+    except KeyError:
+        pass
     try:
         dict_of_lengths["DUP:TANDEM"] = dict_of_lengths.pop("DUP")
     except KeyError:

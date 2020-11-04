@@ -12,8 +12,8 @@ res[res$type == "INVDUP", "type"] <- "Complex"
 res[res$type == "INV/INVDUP", "type"] <- "Complex"
 res[res$type == "cnv", "type"] <- "Complex"
 res$size = factor(res$size, levels=c('tiny', 'small', 'medium', 'large', 'huge', 'all'), labels=c('tiny (50-199bp)', 'small (200-999bp)', 'medium (1-9kb)', 'large (10-99kb)', 'huge (100kb-)', 'all'))
-res$type = factor(res$type, levels=c('DEL', 'INS', 'INV', 'DUP:TANDEM', 'DUP:INT', 'Complex'), labels=c('DEL', 'INS', 'INV', 'DUP:TANDEM', 'DUP:INT', 'Complex'))
-res$tool = factor(res$tool, levels=c('DipCall', 'SVIM'), labels=c('DipCall', 'SVIM'))
+res$type = factor(res$type, levels=c('DEL', 'INS', 'INV', 'DUP:TANDEM', 'DUP:INT', 'BND', 'Complex'), labels=c('DEL', 'INS', 'INV', 'DUP:TANDEM', 'DUP:INT', 'BND', 'Complex'))
+res$tool = factor(res$tool, levels=c('DipCall', 'SVIM'), labels=c('DipCall', 'SVIM-asm'))
 
 totals <- res %>%
             group_by(tool, size) %>%
