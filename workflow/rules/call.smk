@@ -20,7 +20,7 @@ rule prepare_dipcall:
     params:
         prefix = "pipeline/{assembly}/calls/dipcall/HG002"
     shell:
-        "bin/dipcall.kit/run-dipcall -t 10 -x {input.par} {params.prefix} {input.reference} {input.hap1} {input.hap2} > {output}"
+        "bin/dipcall.kit/run-dipcall -t 10 -x {input.par} {params.prefix} {input.reference} {input.hap2} {input.hap1} > {output}"
 
 rule run_dipcall:
     input:
@@ -42,7 +42,7 @@ rule filter_dipcall:
     output:
         "pipeline/{assembly}/calls/dipcall/variants.indel.vcf.gz"
     shell:
-        "bcftools view -i 'STRLEN(REF)>19 | STRLEN(ALT)>19' {input} | awk 'OFS=\"\\t\" {{ if($1 ~ /^#/) {{ print $0 }} else {{ $7 = \"PASS\"; print $0 }} }}' | bcftools sort -Oz > {output}"
+        "bcftools view -i 'ABS(STRLEN(REF) - STRLEN(ALT[0]))>19' {input} | awk 'OFS=\"\\t\" {{ if($1 ~ /^#/) {{ print $0 }} else {{ $7 = \"PASS\"; print $0 }} }}' | bcftools sort -Oz > {output}"
 
 rule call_svim_diploid:
     input:
