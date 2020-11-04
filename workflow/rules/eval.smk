@@ -23,14 +23,14 @@ rule truvari:
         "../envs/truvari.yaml"
     shell:
         """rm -rf {params.out_dir} && \
-        truvari -f {input.reference} \
+        truvari bench -f {input.reference} \
                 -b {input.truth} \
                 --includebed {input.regions} \
                 -o {params.out_dir} \
                 --giabreport \
                 --passonly \
                 -r 1000 \
-                -p 0.00 \
+                -p 0 \
                 -c {input.calls}"""
 
 rule truvari_gtcomp:
@@ -52,7 +52,7 @@ rule truvari_gtcomp:
         "../envs/truvari.yaml"
     shell:
         """rm -rf {params.out_dir} && \
-        truvari -f {input.reference} \
+        truvari bench -f {input.reference} \
                 -b {input.truth} \
                 --includebed {input.regions} \
                 -o {params.out_dir} \
@@ -60,7 +60,7 @@ rule truvari_gtcomp:
                 --passonly \
                 --gtcomp \
                 -r 1000 \
-                -p 0.00 \
+                -p 0 \
                 -c {input.calls}"""
 
 rule truvari_multimatch:
@@ -82,7 +82,7 @@ rule truvari_multimatch:
         "../envs/truvari.yaml"
     shell:
         """rm -rf {params.out_dir} && \
-        truvari -f {input.reference} \
+        truvari bench -f {input.reference} \
                 -b {input.truth} \
                 --includebed {input.regions} \
                 -o {params.out_dir} \
@@ -90,7 +90,7 @@ rule truvari_multimatch:
                 --multimatch \
                 --passonly \
                 -r 1000 \
-                -p 0.00 \
+                -p 0 \
                 -c {input.calls}"""
 
 rule truvari_multimatch_gtcomp:
@@ -112,7 +112,7 @@ rule truvari_multimatch_gtcomp:
         "../envs/truvari.yaml"
     shell:
         """rm -rf {params.out_dir} && \
-        truvari -f {input.reference} \
+        truvari bench -f {input.reference} \
                 -b {input.truth} \
                 --includebed {input.regions} \
                 -o {params.out_dir} \
@@ -121,5 +121,5 @@ rule truvari_multimatch_gtcomp:
                 --passonly \
                 --gtcomp \
                 -r 1000 \
-                -p 0.00 \
+                -p 0 \
                 -c {input.calls}"""

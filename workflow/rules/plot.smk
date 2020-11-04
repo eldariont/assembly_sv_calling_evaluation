@@ -138,10 +138,10 @@ rule call_svim_diploid_all_types:
         "pipeline/calls/svim/{rgt}_{rot}_{qgt}_{qot}_{med}_all_types/variants.vcf"
     params:
         working_dir = "pipeline/calls/svim/{rgt}_{rot}_{qgt}_{qot}_{med}_all_types"
-    #conda:
-    #    "../envs/svimasm.yaml"
+    conda:
+        "../envs/svimasm.yaml"
     shell:
-        "/home/heller_d/bin/anaconda3/bin/svim-asm diploid {params.working_dir} {input.bam1} {input.bam2} {input.reference} --min_sv_size 20 \
+        "svim-asm diploid {params.working_dir} {input.bam1} {input.bam2} {input.reference} --min_sv_size 20 \
         --reference_gap_tolerance {wildcards.rgt} --reference_overlap_tolerance {wildcards.rot} \
         --query_gap_tolerance {wildcards.qgt} --query_overlap_tolerance {wildcards.qot} --max_edit_distance {wildcards.med} --sample HG002 --query_names"
 

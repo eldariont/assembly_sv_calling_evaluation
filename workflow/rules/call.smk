@@ -50,11 +50,11 @@ rule call_svim_diploid:
         "pipeline/calls/svim/{rgt}_{rot}_{qgt}_{qot}_{med}/variants.vcf"
     params:
         working_dir = "pipeline/calls/svim/{rgt}_{rot}_{qgt}_{qot}_{med}"
-    #conda:
-    #    "../envs/svimasm.yaml"
+    conda:
+        "../envs/svimasm.yaml"
     shell:
-        "/home/heller_d/bin/anaconda3/bin/svim-asm diploid {params.working_dir} {input.bam1} {input.bam2} {input.reference} --min_sv_size 20 \
-        --duplications_as_insertions --reference_gap_tolerance {wildcards.rgt} --reference_overlap_tolerance {wildcards.rot} \
+        "svim-asm diploid {params.working_dir} {input.bam1} {input.bam2} {input.reference} --min_sv_size 20 \
+        --tandem_duplications_as_insertions --interspersed_duplications_as_insertions --reference_gap_tolerance {wildcards.rgt} --reference_overlap_tolerance {wildcards.rot} \
         --query_gap_tolerance {wildcards.qgt} --query_overlap_tolerance {wildcards.qot} --max_edit_distance {wildcards.med} --sample HG002 --query_names"
 
 
