@@ -9,16 +9,16 @@ rule truvari:
         reference = config["reference"],
         truth = config["truth"]["vcf"],
         regions = config["truth"]["bed"],
-        calls = "pipeline/calls/{tool}/variants.indel.vcf.gz",
-        index = "pipeline/calls/{tool}/variants.indel.vcf.gz.tbi"
+        calls = "pipeline/{assembly}/calls/{tool}/variants.indel.vcf.gz",
+        index = "pipeline/{assembly}/calls/{tool}/variants.indel.vcf.gz.tbi"
     output:
-        "pipeline/truvari/calls/{tool}/summary.txt",
-        "pipeline/truvari/calls/{tool}/tp-call.vcf",
-        "pipeline/truvari/calls/{tool}/tp-base.vcf",
-        "pipeline/truvari/calls/{tool}/fp.vcf",
-        "pipeline/truvari/calls/{tool}/fn.vcf"
+        "pipeline/{assembly}/truvari/calls/{tool}/summary.txt",
+        "pipeline/{assembly}/truvari/calls/{tool}/tp-call.vcf",
+        "pipeline/{assembly}/truvari/calls/{tool}/tp-base.vcf",
+        "pipeline/{assembly}/truvari/calls/{tool}/fp.vcf",
+        "pipeline/{assembly}/truvari/calls/{tool}/fn.vcf"
     params:
-        out_dir = "pipeline/truvari/calls/{tool}"
+        out_dir = "pipeline/{assembly}/truvari/calls/{tool}"
     conda:
         "../envs/truvari.yaml"
     shell:
@@ -38,16 +38,16 @@ rule truvari_gtcomp:
         reference = config["reference"],
         truth = config["truth"]["vcf"],
         regions = config["truth"]["bed"],
-        calls = "pipeline/calls/{tool}/variants.indel.vcf.gz",
-        index = "pipeline/calls/{tool}/variants.indel.vcf.gz.tbi"
+        calls = "pipeline/{assembly}/calls/{tool}/variants.indel.vcf.gz",
+        index = "pipeline/{assembly}/calls/{tool}/variants.indel.vcf.gz.tbi"
     output:
-        "pipeline/truvari/gtcomp/{tool}/summary.txt",
-        "pipeline/truvari/gtcomp/{tool}/tp-call.vcf",
-        "pipeline/truvari/gtcomp/{tool}/tp-base.vcf",
-        "pipeline/truvari/gtcomp/{tool}/fp.vcf",
-        "pipeline/truvari/gtcomp/{tool}/fn.vcf"
+        "pipeline/{assembly}/truvari/gtcomp/{tool}/summary.txt",
+        "pipeline/{assembly}/truvari/gtcomp/{tool}/tp-call.vcf",
+        "pipeline/{assembly}/truvari/gtcomp/{tool}/tp-base.vcf",
+        "pipeline/{assembly}/truvari/gtcomp/{tool}/fp.vcf",
+        "pipeline/{assembly}/truvari/gtcomp/{tool}/fn.vcf"
     params:
-        out_dir = "pipeline/truvari/gtcomp/{tool}"
+        out_dir = "pipeline/{assembly}/truvari/gtcomp/{tool}"
     conda:
         "../envs/truvari.yaml"
     shell:
@@ -68,16 +68,16 @@ rule truvari_multimatch:
         reference = config["reference"],
         truth = config["truth"]["vcf"],
         regions = config["truth"]["bed"],
-        calls = "pipeline/calls/{tool}/variants.indel.vcf.gz",
-        index = "pipeline/calls/{tool}/variants.indel.vcf.gz.tbi"
+        calls = "pipeline/{assembly}/calls/{tool}/variants.indel.vcf.gz",
+        index = "pipeline/{assembly}/calls/{tool}/variants.indel.vcf.gz.tbi"
     output:
-        "pipeline/truvari_multimatch/calls/{tool}/summary.txt",
-        "pipeline/truvari_multimatch/calls/{tool}/tp-call.vcf",
-        "pipeline/truvari_multimatch/calls/{tool}/tp-base.vcf",
-        "pipeline/truvari_multimatch/calls/{tool}/fp.vcf",
-        "pipeline/truvari_multimatch/calls/{tool}/fn.vcf"
+        "pipeline/{assembly}/truvari_multimatch/calls/{tool}/summary.txt",
+        "pipeline/{assembly}/truvari_multimatch/calls/{tool}/tp-call.vcf",
+        "pipeline/{assembly}/truvari_multimatch/calls/{tool}/tp-base.vcf",
+        "pipeline/{assembly}/truvari_multimatch/calls/{tool}/fp.vcf",
+        "pipeline/{assembly}/truvari_multimatch/calls/{tool}/fn.vcf"
     params:
-        out_dir = "pipeline/truvari_multimatch/calls/{tool}"
+        out_dir = "pipeline/{assembly}/truvari_multimatch/calls/{tool}"
     conda:
         "../envs/truvari.yaml"
     shell:
@@ -98,16 +98,16 @@ rule truvari_multimatch_gtcomp:
         reference = config["reference"],
         truth = config["truth"]["vcf"],
         regions = config["truth"]["bed"],
-        calls = "pipeline/calls/{tool}/variants.indel.vcf.gz",
-        index = "pipeline/calls/{tool}/variants.indel.vcf.gz.tbi"
+        calls = "pipeline/{assembly}/calls/{tool}/variants.indel.vcf.gz",
+        index = "pipeline/{assembly}/calls/{tool}/variants.indel.vcf.gz.tbi"
     output:
-        "pipeline/truvari_multimatch/gtcomp/{tool}/summary.txt",
-        "pipeline/truvari_multimatch/gtcomp/{tool}/tp-call.vcf",
-        "pipeline/truvari_multimatch/gtcomp/{tool}/tp-base.vcf",
-        "pipeline/truvari_multimatch/gtcomp/{tool}/fp.vcf",
-        "pipeline/truvari_multimatch/gtcomp/{tool}/fn.vcf"
+        "pipeline/{assembly}/truvari_multimatch/gtcomp/{tool}/summary.txt",
+        "pipeline/{assembly}/truvari_multimatch/gtcomp/{tool}/tp-call.vcf",
+        "pipeline/{assembly}/truvari_multimatch/gtcomp/{tool}/tp-base.vcf",
+        "pipeline/{assembly}/truvari_multimatch/gtcomp/{tool}/fp.vcf",
+        "pipeline/{assembly}/truvari_multimatch/gtcomp/{tool}/fn.vcf"
     params:
-        out_dir = "pipeline/truvari_multimatch/gtcomp/{tool}"
+        out_dir = "pipeline/{assembly}/truvari_multimatch/gtcomp/{tool}"
     conda:
         "../envs/truvari.yaml"
     shell:

@@ -2,6 +2,9 @@
 # ALIGN #
 #########
 
+def get_assembly(wildcards):
+    return config["assembly"][wildcards.assembly]
+
 rule index_fasta:
     input:
         fasta = "{name}.fasta",
@@ -16,10 +19,10 @@ rule index_fasta:
 rule align_sam:
     input:
         reference = config["reference"],
-        fasta = config["assembly"]
+        fasta = get_assembly
     output:
-        log = "pipeline/logs/H{hap}.sam.log",
-        sam = temp("pipeline/alignments/H{hap}.sam")
+        log = "pipeline/logs/{assembly}.H{hap}.sam.log",
+        sam = temp("pipeline/{assembly}/alignments/H{hap}.sam")
     threads: 8
     conda:
         "../envs/minimap2.yaml"

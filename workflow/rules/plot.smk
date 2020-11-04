@@ -2,11 +2,11 @@
 
 rule generate_calls_outside_regions:
     input:
-        calls = "pipeline/calls/{tool}/variants.indel.vcf.gz",
-        index = "pipeline/calls/{tool}/variants.indel.vcf.gz.tbi",
+        calls = "pipeline/{assembly}/calls/{tool}/variants.indel.vcf.gz",
+        index = "pipeline/{assembly}/calls/{tool}/variants.indel.vcf.gz.tbi",
         regions = config["truth"]["bed"]
     output:
-        "pipeline/{truvari,(truvari|truvari_multimatch)}/calls/{tool}_outside/outside-call.vcf"
+        "pipeline/{assembly}/{truvari,(truvari|truvari_multimatch)}/calls/{tool}_outside/outside-call.vcf"
     shell:
         "(zgrep \"#\" {input.calls} && bedtools intersect -v -f 1.0 -a {input.calls} -b {input.regions}) | bcftools view -i 'ABS(STRLEN(REF)-STRLEN(ALT))>=50 & ABS(STRLEN(REF)-STRLEN(ALT))<=50000 & FILTER==\"PASS\"' > {output}"
 
@@ -16,7 +16,7 @@ rule generate_base_outside_regions:
         base = config["truth"]["vcf"],
         regions = config["truth"]["bed"]
     output:
-        "pipeline/{truvari,(truvari|truvari_multimatch)}/calls/{tool}_outside/outside-base.vcf"
+        "pipeline/{assembly}/{truvari,(truvari|truvari_multimatch)}/calls/{tool}_outside/outside-base.vcf"
     shell:
         "(zgrep \"#\" {input.base} && bedtools intersect -v -f 1.0 -a {input.base} -b {input.regions}) | bcftools view -i 'ABS(STRLEN(REF)-STRLEN(ALT))>=50 & ABS(STRLEN(REF)-STRLEN(ALT))<=50000 & FILTER==\"PASS\"' > {output}"
 
@@ -130,14 +130,14 @@ rule plot_pr_svim_parameters:
 rule call_svim_diploid_all_types:
     input:
         reference = config["reference"],
-        bam1 = "pipeline/alignments/H1.sort.bam",
-        index1 = "pipeline/alignments/H1.sort.bam.bai",
-        bam2 = "pipeline/alignments/H2.sort.bam",
-        index2 = "pipeline/alignments/H2.sort.bam.bai"
+        bam1 = "pipeline/{assembly}/alignments/H1.sort.bam",
+        index1 = "pipeline/{assembly}/alignments/H1.sort.bam.bai",
+        bam2 = "pipeline/{assembly}/alignments/H2.sort.bam",
+        index2 = "pipeline/{assembly}/alignments/H2.sort.bam.bai"
     output:
-        "pipeline/calls/svim/{rgt}_{rot}_{qgt}_{qot}_{med}_all_types/variants.vcf"
+        "pipeline/{assembly}/calls/svim/{rgt}_{rot}_{qgt}_{qot}_{med}_all_types/variants.vcf"
     params:
-        working_dir = "pipeline/calls/svim/{rgt}_{rot}_{qgt}_{qot}_{med}_all_types"
+        working_dir = "pipeline/{assembly}/calls/svim/{rgt}_{rot}_{qgt}_{qot}_{med}_all_types"
     conda:
         "../envs/svimasm.yaml"
     shell:
@@ -147,12 +147,12 @@ rule call_svim_diploid_all_types:
 
 rule SV_length_plot_svim:
     input:
-        "pipeline/calls/svim/{parameters}_all_types/variants.vcf"
+        "pipeline/{assembly}/calls/svim/{parameters}_all_types/variants.vcf"
     output:
-        plot = "pipeline/SV-plots/SV-length_SVIM_{parameters}.png",
-        counts = "pipeline/SV-plots/SV-counts_SVIM_{parameters}.txt",
+        plot = "pipeline/{assembly}/SV-plots/SV-length_SVIM_{parameters}.png",
+        counts = "pipeline/{assembly}/SV-plots/SV-counts_SVIM_{parameters}.txt",
     log:
-        "logs/svplot/svlength_SVIM_{parameters}.log"
+        "logs/svplot/svlength_{assembly}_SVIM_{parameters}.log"
     conda:
         "../envs/cyvcf2.yaml"
     shell:
@@ -160,12 +160,12 @@ rule SV_length_plot_svim:
 
 rule SV_length_plot_dipcall:
     input:
-        "pipeline/calls/dipcall/HG002.dip.vcf.gz"
+        "pipeline/{assembly}/calls/dipcall/HG002.dip.vcf.gz"
     output:
-        plot = "pipeline/SV-plots/SV-length_dipcall.png",
-        counts = "pipeline/SV-plots/SV-counts_dipcall.txt",
+        plot = "pipeline/{assembly}/SV-plots/SV-length_dipcall.png",
+        counts = "pipeline/{assembly}/SV-plots/SV-counts_dipcall.txt",
     log:
-        "logs/svplot/svlength_dipcall.log"
+        "logs/svplot/svlength_{assembly}_dipcall.log"
     conda:
         "../envs/cyvcf2.yaml"
     shell:
@@ -173,18 +173,18 @@ rule SV_length_plot_dipcall:
 
 rule merge_counts:
     input:
-        svim = "pipeline/SV-plots/SV-counts_SVIM_1000_1000_2000_2000_200.txt",
-        sniffles = "pipeline/SV-plots/SV-counts_dipcall.txt",
+        svim = "pipeline/{assembly}/SV-plots/SV-counts_SVIM_1000_1000_2000_2000_200.txt",
+        sniffles = "pipeline/{assembly}/SV-plots/SV-counts_dipcall.txt",
     output:
-        "pipeline/SV-plots/SV-counts.merged.txt"
+        "pipeline/{assembly}/SV-plots/SV-counts.merged.txt"
     shell:
         "cat {input} | grep -v '#' > {output}"
 
 rule plot_counts:
     input:
-        "pipeline/SV-plots/SV-counts.merged.txt"
+        "pipeline/{assembly}/SV-plots/SV-counts.merged.txt"
     output:
-        png = "pipeline/SV-plots/SV-counts.merged.png",
-        tsv = "pipeline/SV-plots/SV-counts.merged.tsv"
+        png = "pipeline/{assembly}/SV-plots/SV-counts.merged.png",
+        tsv = "pipeline/{assembly}/SV-plots/SV-counts.merged.tsv"
     shell:
         "Rscript --vanilla workflow/scripts/plot_counts.R {input} {output.png} {output.tsv}"
