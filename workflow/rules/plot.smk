@@ -50,6 +50,18 @@ rule plot:
     shell:
         "python3 workflow/scripts/truvari_by_size.py {wildcards.path} {output}"
 
+rule plot_performance_by_size:
+    input:
+        "{path}/tp-call.annotated.vcf",
+        "{path}/tp-base.annotated.vcf",
+        "{path}/fp.annotated.vcf",
+        "{path}/fn.annotated.vcf",
+    output:
+        "{path}/performance_by_size.png"
+    shell:
+        "python3 workflow/scripts/performance_by_size.py {wildcards.path} {output}"
+
+
 #Precision-Recall plots
 
 rule reformat_truvari_results:
