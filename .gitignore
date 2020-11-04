@@ -1,0 +1,7 @@
+.snakemake/*
+data/*
+logs/*
+paper_data/*
+pipeline/*
+reports/*
+venn_comparison_ccs/*
