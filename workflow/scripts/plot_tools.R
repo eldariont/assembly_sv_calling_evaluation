@@ -3,30 +3,38 @@ library(scales)
 
 args = commandArgs(trailingOnly=TRUE)
 
-res <- read_tsv(args[1], col_names = c("caller", "truvari", "mode", "metric", "value"))
-res$caller = factor(res$caller, levels=c('dipcall', 'svim'), labels=c('Dipcall', 'SVIM'))
-res$mode = factor(res$mode, levels=c('calls', 'gtcomp'), labels=c('call', 'genotype'))
+res <- read_tsv(args[1], col_names = c("assembly", "caller", "tp_matching_gt", "tp_differing_gt", "fp", "fn"))
+res$assembly = factor(res$assembly, levels=c('wenger', 'garg'), labels=c('Asm A', 'Asm B'))
+res$caller = factor(res$caller, levels=c('dipcall', 'svim'), labels=c('DipCall', 'SVIM-asm'))
 
-final <- res %>%
-    filter(truvari == "truvari") %>%
-    filter(metric %in% c("recall", "precision")) %>%
-    pivot_wider(names_from=metric, values_from=value) %>%
-    filter(recall!=0 | precision!=0) %>%
-    mutate(precision = 100*precision, recall = 100*recall) %>%
+
+metrics_calls <- res %>%
+    mutate(precision = (tp_matching_gt + tp_differing_gt) / (tp_matching_gt + tp_differing_gt + fp)) %>%
+    mutate(recall = (tp_matching_gt + tp_differing_gt) / (tp_matching_gt + tp_differing_gt + fn)) %>%
     mutate(f1 = 2*precision*recall/(precision+recall)) %>%
-    pivot_longer(c("precision", "recall", "f1"), names_to="metric", values_to="value") %>%
-    mutate(metric = factor(metric, levels=c('precision', 'recall', 'f1'), labels=c('Precision', 'Recall', 'F1 Score')))
+    mutate(mode = 'calls') %>%
+    pivot_longer(c("precision", "recall", "f1"), names_to="metric", values_to="value")
+
+metrics_gt <- res %>%
+    mutate(precision = (tp_matching_gt) / (tp_matching_gt + tp_differing_gt + fp)) %>%
+    mutate(recall = (tp_matching_gt) / (tp_matching_gt + tp_differing_gt + fn)) %>%
+    mutate(f1 = 2*precision*recall/(precision+recall)) %>%
+    mutate(mode = 'gtcomp') %>%
+    pivot_longer(c("precision", "recall", "f1"), names_to="metric", values_to="value")
+
+final <- rbind(metrics_calls, metrics_gt) %>%
+    mutate(metric = factor(metric, levels=c('precision', 'recall', 'f1'), labels=c('Precision', 'Recall', 'F1 Score'))) %>%
+    mutate(mode = factor(mode, levels=c('calls', 'gtcomp'), labels=c('Calls', 'Calls + Genotypes')))
 
 final%>%
-    ggplot(aes(mode, value, fill=caller)) +
+    ggplot(aes(assembly, value, fill=caller)) +
       geom_col(color="black", position=position_dodge()) +
-      scale_fill_manual(values=c("deepskyblue3", "firebrick2")) +
-      labs(y = "Value", x = "Evaluation mode", fill = "Tool") +
-      facet_wrap(~metric) +
-      scale_y_continuous(minor_breaks = seq(0 , 100, 5), breaks = seq(0, 100, 10)) +
+      scale_fill_manual(values=c("gray", "black")) +
+      labs(y = "Value", x = "Assembly", fill = "Tool") +
+      facet_grid(mode~metric) +
+      scale_y_continuous(minor_breaks = seq(0 , 1, 0.1), breaks = seq(0, 1, 0.2)) +
       theme_bw() +
-      theme(panel.spacing = unit(0.75, "lines")) +
-      theme(text = element_text(size=14), axis.text.x = element_text(size=9), axis.text.y = element_text(size=9))
+      theme(text = element_text(size=18))
+ggsave(args[2], width=8, height=8)
 
-ggsave(args[2], width=8, height=4)
 final %>% write_tsv(args[3])

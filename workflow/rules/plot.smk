@@ -37,7 +37,7 @@ rule annotate_repeats:
     shell:
         "vcfanno_linux64 {input.conf} {input.vcf} > {output}"
 
-rule plot:
+rule plot_SV_size:
     input:
         "{path}/tp-call.annotated.vcf",
         "{path}/tp-base.annotated.vcf",
@@ -64,44 +64,47 @@ rule plot_performance_by_size:
 
 #Precision-Recall plots
 
-rule reformat_truvari_results:
+rule reformat_truvari_results_error_types:
     input:
-        "pipeline/{truvari}/{mode}/dipcall/summary.txt"
+        tp_call = "pipeline/{assembly}/truvari/calls/dipcall/tp-call.vcf",
+        tp_base = "pipeline/{assembly}/truvari/calls/dipcall/tp-base.vcf",
+        fp = "pipeline/{assembly}/truvari/calls/dipcall/fp.vcf",
+        fn = "pipeline/{assembly}/truvari/calls/dipcall/fn.vcf"
     output:
-        "pipeline/{truvari,(truvari|truvari_multimatch)}/{mode,(calls|gtcomp)}/dipcall/pr_rec.txt"
+        "pipeline/{assembly,(wenger|garg)}/truvari/calls/dipcall/error_types.txt"
     threads: 1
     shell:
-        "cat {input} | grep 'precision\|recall' | grep -v 'gt' | tr -d ',' |sed 's/^[ \t]*//' | tr -d '\"' | tr -d ' ' | tr ':' '\t' | awk 'OFS=\"\\t\" {{ print \"dipcall\", \"{wildcards.truvari}\", \"{wildcards.mode}\", $1, $2 }}' > {output}"
+        "python workflow/scripts/compare_genotypes.py {input.tp_call} {input.tp_base} {input.fp} {input.fn} {wildcards.assembly} dipcall > {output}"
 
-rule reformat_truvari_results_svim:
+rule reformat_truvari_results_error_types_svim:
     input:
-        "pipeline/{truvari}/{mode}/svim/{parameters}/summary.txt"
+        tp_call = "pipeline/{assembly}/truvari/calls/svim/{parameters}/tp-call.vcf",
+        tp_base = "pipeline/{assembly}/truvari/calls/svim/{parameters}/tp-base.vcf",
+        fp = "pipeline/{assembly}/truvari/calls/svim/{parameters}/fp.vcf",
+        fn = "pipeline/{assembly}/truvari/calls/svim/{parameters}/fn.vcf"
     output:
-        "pipeline/{truvari,(truvari|truvari_multimatch)}/{mode,(calls|gtcomp)}/svim/{parameters}/pr_rec.txt"
+        "pipeline/{assembly,(wenger|garg)}/truvari/calls/svim/{parameters}/error_types.txt"
     threads: 1
     shell:
-        "cat {input} | grep 'precision\|recall' | grep -v 'gt' | tr -d ',' |sed 's/^[ \t]*//' | tr -d '\"' | tr -d ' ' | tr ':' '\t' | awk 'OFS=\"\\t\" {{ print \"svim\", \"{wildcards.truvari}\", \"{wildcards.mode}\", $1, $2 }}' > {output}"
+        "python workflow/scripts/compare_genotypes.py {input.tp_call} {input.tp_base} {input.fp} {input.fn} {wildcards.assembly} svim > {output}"
 
 
-rule cat_truvari_results:
+rule cat_truvari_results_error_types:
     input:
-        svim = expand("pipeline/{truvari}/{mode}/svim/1000_1000_2000_2000_200/pr_rec.txt", 
-                          truvari = ["truvari", "truvari_multimatch"],
-                          mode = ["calls", "gtcomp"]),
-        dipcall = expand("pipeline/{truvari}/{mode}/dipcall/pr_rec.txt", 
-                          truvari = ["truvari", "truvari_multimatch"],
-                          mode = ["calls", "gtcomp"])
+        svim = expand("pipeline/{assembly}/truvari/calls/svim/1000_1000_2000_2000_200/error_types.txt", 
+                          assembly = ["wenger", "garg"]),
+        dipcall = expand("pipeline/{assembly}/truvari/calls/dipcall/error_types.txt", 
+                          assembly = ["wenger", "garg"])
     output:
-        all = "pipeline/eval/all_results.txt"
+        all = "pipeline/eval/all_results_error_types.txt"
     threads: 1
     shell:
         "cat {input.svim} {input.dipcall} > {output.all}"
 
 rule cat_truvari_results_svim_parameters:
     input:
-        svim = expand("pipeline/{truvari}/{mode}/svim/{parameters}/pr_rec.txt", 
-                          truvari = ["truvari", "truvari_multimatch"],
-                          mode = ["calls", "gtcomp"],
+        svim = expand("pipeline/{assembly}/truvari/calls/svim/{parameters}/error_types.txt", 
+                          assembly = ["wenger", "garg"],
                           parameters = ["50_50_50_50_200", "100_100_2000_2000_200", "1000_1000_2000_2000_200"])
     output:
         all = "pipeline/eval/svim_parameter_results.txt"
@@ -109,14 +112,14 @@ rule cat_truvari_results_svim_parameters:
     run:
         with open(output.all, 'w') as output_file:
             for f in input.svim:
-                parameters = f.split("/")[4]
+                parameters = f.split("/")[5]
                 with open(f, 'r') as input_file:
                     for line in input_file:
                         print("%s\t%s" % (parameters, line.strip()), file=output_file)
 
 rule plot_pr_tools:
     input:
-        "pipeline/eval/all_results.txt"
+        "pipeline/eval/all_results_error_types.txt"
     output:
         png = "pipeline/eval/results.tools.png",
         tsv = "pipeline/eval/results.tools.tsv"
@@ -125,6 +128,19 @@ rule plot_pr_tools:
         "pipeline/logs/rplot.tools.log"
     shell:
         "Rscript --vanilla workflow/scripts/plot_tools.R {input} {output.png} {output.tsv} > {log}"
+
+rule plot_pr_tools_error_types:
+    input:
+        "pipeline/eval/all_results_error_types.txt"
+    output:
+        png = "pipeline/eval/results.tools.error_types.png",
+        tsv = "pipeline/eval/results.tools.error_types.tsv"
+    threads: 1
+    log:
+        "pipeline/logs/rplot.tools.error_types.log"
+    shell:
+        "Rscript --vanilla workflow/scripts/plot_tools_error_types.R {input} {output.png} {output.tsv} > {log}"
+
 
 
 rule plot_pr_svim_parameters:
@@ -138,6 +154,8 @@ rule plot_pr_svim_parameters:
     shell:
         "Rscript --vanilla workflow/scripts/plot_svim_parameters.R {input} {output} > {log}"
 
+
+#SV counts from all classes
 
 rule call_svim_diploid_all_types:
     input:
