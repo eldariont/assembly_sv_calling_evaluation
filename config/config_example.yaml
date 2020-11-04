@@ -1,8 +1,8 @@
 reference: /path/to/database/genome.fa.gz
 
 assembly:
-    assembly1: /path/to/assembly1/NA24385-denovo-H{hap}.fa
-    assembly2: /path/to/assembly2/NA24385-denovo-H{hap}.fa
+    wenger: /path/to/assembly1/HG002-denovo-H{hap}.fa
+    garg: /path/to/assembly2/HG002-denovo-H{hap}.fa
 
 truth:
     vcf: /path/to/truth/vcf.vcf.gz
