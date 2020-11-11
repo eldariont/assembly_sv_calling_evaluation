@@ -86,10 +86,10 @@ def plot_length(ax, xs, precs, recs, calls_lt1000, calls_gt1000):
 
 def main():
     truvari_dir = sys.argv[1]
-    tpcall_path = truvari_dir + "/tp-call.annotated.vcf"
-    tpbase_path = truvari_dir + "/tp-base.annotated.vcf"
-    fp_path = truvari_dir + "/fp.annotated.vcf"
-    fn_path = truvari_dir + "/fn.annotated.vcf"
+    tpcall_path = truvari_dir + "/tp-call.vcf"
+    tpbase_path = truvari_dir + "/tp-base.vcf"
+    fp_path = truvari_dir + "/fp.vcf"
+    fn_path = truvari_dir + "/fn.vcf"
 
     step_size_small = 50
     step_size_large = 500

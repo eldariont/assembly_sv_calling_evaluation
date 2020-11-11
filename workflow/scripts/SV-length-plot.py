@@ -14,10 +14,6 @@ def main():
     len_dict = defaultdict(list)
     ignored_chroms = args.filter.split(",")
     for v in VCF(args.vcf):
-        #ignore TRAs and BNDs
-        if v.INFO.get('SVTYPE') in ['TRA', 'BND']:
-            len_dict[v.INFO.get('SVTYPE')].append(0)
-            continue
         #filter by score
         if args.min_score != 0 and v.QUAL < args.min_score:
             continue
@@ -29,6 +25,19 @@ def main():
             continue
         #filter out filtered records
         if v.FILTER in ["Decoy", "NearReferenceGap", "NearContigEnd", "hom_ref"]:
+            continue
+        #ignore TRAs and BNDs
+        if v.INFO.get('SVTYPE') in ['TRA', 'BND']:
+            if v.INFO.get('SVTYPE') == 'BND':
+                alt_string = v.ALT[0]
+                if alt_string.startswith('N'):
+                    pos2_string = alt_string[2:-1]
+                else:
+                    pos2_string = alt_string[1:-2]
+                chr2 = pos2_string.split(":")[0]
+                if chr2 in ignored_chroms:
+                    continue
+            len_dict[v.INFO.get('SVTYPE')].append(0)
             continue
         try:
             #filter by SV length
