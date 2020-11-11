@@ -57,9 +57,11 @@ rule plot_performance_by_size:
         "{path}/fp.annotated.vcf",
         "{path}/fn.annotated.vcf",
     output:
-        "{path}/performance_by_size.png"
+        "{path}/performance_by_size.png",
+    log:
+        "{path}/performance_by_size.log"
     shell:
-        "python3 workflow/scripts/performance_by_size.py {wildcards.path} {output}"
+        "python3 workflow/scripts/performance_by_size.py {wildcards.path} {output} > {log}"
 
 
 #Precision-Recall plots
